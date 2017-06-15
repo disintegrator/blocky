@@ -21,6 +21,12 @@ const grid = [
 describe('search', () => {
   describe('getColourChain', () => {
     [
+      // out of bounds cases
+      { block: { x: 1, y: 1, colour: 'W' }, size: 1 }, // bad colour
+      { block: { x: 20, y: 4, colour: 'R' }, size: 1 }, // bad x
+      { block: { x: 5, y: 5217, colour: 'G' }, size: 1 }, // bad y
+
+      // regular cases
       { block: grid[0][1], size: 4 },
       { block: grid[5][5], size: 1 },
       { block: grid[6][8], size: 6 },

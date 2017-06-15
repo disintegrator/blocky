@@ -3,8 +3,8 @@ import { NULL_COLOUR } from './constants';
 const getNeighbours = (block, grid) => {
   const x = block.x;
   const y = block.y;
-  const top = grid[x][y + 1];
-  const right = grid[x][y - 1];
+  const top = (grid[x] || [])[y + 1];
+  const right = (grid[x] || [])[y - 1];
   const bottom = (grid[x + 1] || [])[y];
   const left = (grid[x - 1] || [])[y];
   return [top, right, bottom, left];
