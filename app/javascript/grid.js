@@ -1,3 +1,5 @@
+import { getColourChain } from './search';
+
 export const COLOURS = ['red', 'green', 'blue', 'yellow'];
 const MAX_X = 10;
 const MAX_Y = 10;
@@ -22,7 +24,6 @@ export class BlockGrid {
 
       this.grid.push(col);
     }
-
     return this;
   }
 
@@ -51,7 +52,43 @@ export class BlockGrid {
   }
 
   blockClicked(e, block) {
-    console.log(e, block);
+    const chain = getColourChain(block, this.grid);
+    this.applyChain(chain);
+  }
+
+  renderBlockColour({ x, y, colour }) {
+    const id = `block_${x}x${y}`;
+    document.getElementById(id).style.background = colour;
+  }
+
+  applyChain(chain) {
+    if (chain.size <= 1) {
+      return;
+    }
+    const collapse = {};
+    chain.forEach(({ x, y }) => {
+      const current = collapse[x] || { start: y, count: 0 };
+      collapse[x] = {
+        start: Math.min(current.start, y),
+        count: current.count + 1,
+      };
+    });
+    Object.keys(collapse).forEach(x => {
+      const { start, count } = collapse[x];
+      // "collapse" the column
+      for (let y = start; y < MAX_Y - count; y++) {
+        const block = this.grid[x][y];
+        const colour = this.grid[x][y + count].colour;
+        block.colour = colour;
+        this.renderBlockColour(block);
+      }
+      // grey out the rest of the column
+      for (let y = MAX_Y - count; y < MAX_Y; y++) {
+        const block = this.grid[x][y];
+        block.colour = 'transparent';
+        this.renderBlockColour(block);
+      }
+    });
   }
 }
 
