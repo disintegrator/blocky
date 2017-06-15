@@ -29,5 +29,8 @@
     "webpack": "^2.3.3",
     "webpack-dev-server": "^2.4.2"
   },
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "dependencies": {
+    "chance": "^1.0.9"
+  }
 }

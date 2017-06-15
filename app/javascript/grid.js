@@ -1,25 +1,36 @@
+import Chance from 'chance';
+
+import { NULL_COLOUR } from './constants';
 import { getColourChain } from './search';
 
 export const COLOURS = ['red', 'green', 'blue', 'yellow'];
-const MAX_X = 10;
-const MAX_Y = 10;
+export const MAX_X = 10;
+export const MAX_Y = 10;
+
+// Switching to Chance allows us a to use a controlled source of randomness.
+// BlockGrid can use RANDOM as a default random number generator. When testing,
+// we can pass BlockGrid an instance with a fixed seed and be able to generate
+// a deterministic grid
+const RANDOM = new Chance(Math.random);
+
+const genId = ({ x, y }) => `block_${x}x${y}`;
 
 export class Block {
-  constructor(x, y) {
+  constructor(x, y, colour) {
     this.x = x;
     this.y = y;
-    this.colour = COLOURS[Math.floor(Math.random() * COLOURS.length)];
+    this.colour = colour;
   }
 }
 
 export class BlockGrid {
-  constructor() {
+  constructor({ random = RANDOM } = {}) {
     this.grid = [];
 
     for (let x = 0; x < MAX_X; x++) {
       let col = [];
       for (let y = 0; y < MAX_Y; y++) {
-        col.push(new Block(x, y));
+        col.push(new Block(x, y, random.pickone(COLOURS)));
       }
 
       this.grid.push(col);
@@ -37,7 +48,7 @@ export class BlockGrid {
 
       for (let y = MAX_Y - 1; y >= 0; y--) {
         let block = this.grid[x][y],
-          id = `block_${x}x${y}`,
+          id = genId(block),
           blockEl = document.createElement('div');
 
         blockEl.id = id;
@@ -51,20 +62,18 @@ export class BlockGrid {
     return this;
   }
 
-  blockClicked(e, block) {
-    const chain = getColourChain(block, this.grid);
-    this.applyChain(chain);
-  }
-
-  renderBlockColour({ x, y, colour }) {
-    const id = `block_${x}x${y}`;
+  renderBlockColour(block) {
+    const { x, y, colour } = block;
+    const id = genId(block);
     document.getElementById(id).style.background = colour;
   }
 
-  applyChain(chain) {
+  blockClicked(e, block) {
+    const chain = getColourChain(block, this.grid);
     if (chain.size <= 1) {
       return;
     }
+
     const collapse = {};
     chain.forEach(({ x, y }) => {
       const current = collapse[x] || { start: y, count: 0 };
@@ -82,10 +91,10 @@ export class BlockGrid {
         block.colour = colour;
         this.renderBlockColour(block);
       }
-      // grey out the rest of the column
+      // clear the rest of the blocks in the column
       for (let y = MAX_Y - count; y < MAX_Y; y++) {
         const block = this.grid[x][y];
-        block.colour = 'transparent';
+        block.colour = NULL_COLOUR;
         this.renderBlockColour(block);
       }
     });

@@ -1,3 +1,5 @@
+import { NULL_COLOUR } from './constants';
+
 const getNeighbours = (block, grid) => {
   const x = block.x;
   const y = block.y;
@@ -20,14 +22,16 @@ export const getColourChain = (startBlock, grid, chain = new Set()) => {
   let out = new Set(chain);
   out.add(startBlock);
   const ns = getNeighbours(startBlock, grid);
-  ns.filter(
-    n =>
-      n && // must not be out of bounds value aka undefined
-      n.colour !== 'transparent' && // must not be a null block
-      n.colour === startBlock.colour && // must be same colour as startBlock
-      !out.has(n), // must be a newly visited block
-  ).forEach(n => {
-    out = unionSet(out, getColourChain(n, grid, out));
-  });
+  ns
+    .filter(
+      n =>
+        n && // must not be out of bounds value aka undefined
+        n.colour !== NULL_COLOUR && // must not be a null block
+        n.colour === startBlock.colour && // must be same colour as startBlock
+        !out.has(n), // must be a newly visited block
+    )
+    .forEach(n => {
+      out = unionSet(out, getColourChain(n, grid, out));
+    });
   return out;
 };

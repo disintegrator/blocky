@@ -27,3 +27,7 @@ After clicking one of the bottom right blue boxes it should then look
 like this:
 
 ![state 2](https://trottski.s3.amazonaws.com/snaps/stage2.jpg)
+
+## Decisions/Assumptions
+
+- Switched to using chance.js and passing it to BlockGrid at construction time to make it more easily testable. As a result, it can generate grids deterministically as seen `grid.test.js`.
